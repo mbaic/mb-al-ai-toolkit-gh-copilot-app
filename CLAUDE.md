@@ -85,6 +85,16 @@ Before the rename these were different strings and the docs warned that conflati
 
 GitHub keeps a redirect from the old repository path after a rename, so `marketplace add mbaic/<old-name>` may keep appearing to work. Do not rely on it: it masks stale references during testing, and it does not survive the old name being claimed by another repository. Treat a passing test that still uses the old name as untested.
 
+## Current state
+
+As of 2026-08-07 this repository is **public**, renamed to its production name, and the 0.1.0 content is complete and verified.
+
+- The marketplace and its single plugin were **installed end to end in the GitHub Copilot app** by following the README — Settings → Plugins → Add marketplace → Install. The documented flow is confirmed working, not just structurally valid.
+- `main` carries the finished work. CI (`Validate manifests`) runs on every relevant push and has passed.
+- **No release has been cut yet.** There are no tags. `CHANGELOG.md` links to `releases/tag/v0.1.0`, which 404s until the Release workflow is run for `0.1.0`. Cutting that release is the outstanding task.
+
+Known follow-up outside this repo: the upstream `mb-al-ai-toolkit-cli` still declares the non-existent `search` tool that was corrected here. It has not been fixed there.
+
 ## What this repository is
 
 A **self-hosted GitHub Copilot plugin marketplace**. It ships no application code — every file is either a JSON manifest or Markdown that Copilot loads at runtime. There is no build, no test suite, and no linter. "Correctness" here means: the manifests parse, they agree with each other, and every command and identifier in the docs actually exists.
