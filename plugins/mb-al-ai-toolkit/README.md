@@ -21,28 +21,16 @@ Skills are auto-selected by **description match** — phrase your request natura
 
 This plugin is served by the custom marketplace in this repository, not by a public GitHub marketplace. The marketplace must be registered once before the plugin can be installed — see the [root README](../../README.md) for that step and for the declarative, repo-level alternative.
 
-Once the marketplace is registered, install by qualified identifier:
+**In the GitHub Copilot app**, plugin management is GUI-only — there is no `/plugin` command. Go to **Settings → Plugins**, choose **Add marketplace** with source `mbaic/mb-al-ai-toolkit-gh-copilot-app` and select **Allow**, then expand the marketplace entry and click **Install** on `mb-al-ai-toolkit`.
+
+**In the Copilot CLI**, once the marketplace is registered, install by qualified identifier:
 
 ```bash
 copilot plugin install mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app
-```
-
-The GitHub Copilot app and the Copilot CLI share plugin state, so installing through either client makes the plugin available in both.
-
-**Verify:**
-
-```bash
 copilot plugin list
 ```
 
-Inside a session, confirm the components loaded:
-
-```text
-/agent
-/skills list
-```
-
-You should see `al-fast` in the agent picker and the seven `al-*` skills in the skills list.
+**Verify** — in a session, `/agent` should list `al-fast`, and `/skills` should list the seven `al-*` skills. In the app they also appear under **Settings → Skills**.
 
 ## Usage
 

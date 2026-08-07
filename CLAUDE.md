@@ -138,9 +138,20 @@ The READMEs are the deliverable as much as the manifests, and their accuracy has
 
 - Real: `copilot plugin marketplace add|list|browse|update|remove`, `copilot plugin install|uninstall|list|update|enable|disable`, in-session `/plugin ...`, `/agent`, `/skills list|info|load`.
 - **Not real:** `copilot plugin search`, `copilot plugin validate`, `@plugin-name` chat invocation. GitHub publishes no official manifest validator or Action.
-- The Copilot **desktop app's** exact GUI menu path is not documented anywhere verifiable. Describe the app flow generically; do not assert click paths.
 
-When adding a claim about Copilot behavior, verify it against the `github/docs` repository source (`content/copilot/reference/copilot-cli-reference/`) rather than from memory — `docs.github.com` is often blocked by network egress policy, but the repo is cloneable.
+When adding a claim about Copilot behavior, verify it against the `github/docs` repository source rather than from memory — `docs.github.com` is often blocked by network egress policy, but the repo is shallow-cloneable. The CLI reference lives under `content/copilot/reference/copilot-cli-reference/`; the app's under `content/copilot/reference/github-copilot-app-reference/` and `content/copilot/how-tos/github-copilot-app/`. `github.blog` is also egress-blocked; `raw.githubusercontent.com/github/app/main/changelog.md` is not, and is useful for app feature history.
+
+## The app and the CLI are different surfaces
+
+This repository targets the **Copilot app**, but most plugin documentation online describes the **CLI**. They are not interchangeable, and conflating them has already produced errors in this README.
+
+- **The app has no `/plugin` command family at all.** Plugin management is GUI-only: **Settings → Plugins → Add marketplace** (a `source` field taking `OWNER/REPO` or a Git URL) → confirm the **Add plugin marketplace?** dialog → expand the marketplace → **Install**. The deep link `ghapp://plugins/marketplace/add?source=OWNER/REPO` pre-fills that form but still requires confirmation. Never document `/plugin install` as an app instruction.
+- **The app does support** `/agent` (agent picker, plus a **Default agent** picker) and `/skills` (including `/skills reload`). Skills are also listed under **Settings → Skills**.
+- **`enabledPlugins` / `extraKnownMarketplaces` in `.github/copilot/settings.json` are documented for the CLI and the Copilot cloud agent — not for the app.** Do not present that file as an app install path. Enterprise `managed-settings.json` keys, including `strictKnownMarketplaces`, *are* documented as applying to the app.
+- Skills and MCP servers configured for repositories or the CLI *are* automatically available in the app. Plugin installation is the part that is not shared.
+- Supported app platforms: macOS, Windows, and Linux.
+
+Still unverified, so do not assert: the app's personal (non-enterprise) on-disk settings path, and whether the plugins feature carries its own preview/GA label distinct from the app's.
 
 ## Cache behavior
 

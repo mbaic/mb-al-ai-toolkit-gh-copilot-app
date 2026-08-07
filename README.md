@@ -31,7 +31,7 @@ This is the **Copilot app** edition. Two sibling editions package the same AL to
 | Skill | `al-general-dev` | YAGNI/KISS/DRY principles for PTE codebases |
 | Skill | `al-sortrecordref` | Dynamic `RecordRef` sorting reference, with a deep-dive companion |
 
-Skills are selected by **description match** — phrase your request naturally and Copilot picks the right one. They are not slash commands. You can still pin one explicitly with `/skills load <name>`.
+Skills are selected by **description match** — phrase your request naturally and Copilot picks the right one. They are not slash commands. Use `/skills` to review what is loaded (the CLI additionally supports `/skills load <name>` to pin one explicitly).
 
 ## Repository layout
 
@@ -65,68 +65,76 @@ The marketplace manifest lives at `.github/plugin/marketplace.json`. Each entry'
 
 ## Requirements
 
-- GitHub Copilot app, or GitHub Copilot CLI — the two share plugin state
+- The **GitHub Copilot app** (macOS, Windows, or Linux), or the GitHub Copilot CLI
 - An active GitHub Copilot subscription
 - An AL workspace for a Business Central Per-Tenant Extension (PTE)
 - For the `al-fast` agent's build cycle: `alc` (AL Compiler) reachable from the shell, or `dotnet` with the AL compiler installed as a tool
 
-## Installation
+## Installation — GitHub Copilot app
 
-A plugin served from a custom marketplace is a two-step install: **register the marketplace once**, then **install the plugin from it**.
+A plugin served from a custom marketplace is always a two-stage install: **add the marketplace once**, then **install the plugin from it**. In the app both stages happen in the same screen.
 
-### Step 1 — Register the marketplace
+> Plugin management in the Copilot app is **GUI-only**. Unlike the CLI, the app has no `/plugin` slash commands — do not try to type `/plugin install` into a session.
 
-```bash
-copilot plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app
-```
+### Step 1 — Open the Plugins screen
 
-Or from inside a Copilot session:
+Open the GitHub Copilot app, go to **Settings**, then click **Plugins**.
+
+### Step 2 — Add this marketplace
+
+Choose **Add marketplace**, and enter this repository as the **source**:
 
 ```text
-/plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app
+mbaic/mb-al-ai-toolkit-gh-copilot-app
 ```
 
-Confirm it registered under the name declared in the manifest:
+The source field accepts either an `OWNER/REPO` GitHub reference (as above) or a full Git URL.
+
+When the **Add plugin marketplace?** dialog appears, choose **Allow**.
+
+> **Shortcut.** Opening the deep link below jumps straight to **Settings → Plugins** with the form already filled in. It does not install anything on its own — you still confirm in the app.
+>
+> ```text
+> ghapp://plugins/marketplace/add?source=mbaic/mb-al-ai-toolkit-gh-copilot-app
+> ```
+
+### Step 3 — Install the plugin
+
+In the **Plugins** list, expand the newly added **`mb-al-ai-toolkit-gh-copilot-app`** marketplace, find **`mb-al-ai-toolkit`**, and click **Install**.
+
+> You add the **repository** (`mbaic/mb-al-ai-toolkit-gh-copilot-app`), but the plugin is listed under the **marketplace name** declared in `marketplace.json`. Here those two strings are identical, so the distinction is easy to miss — it still matters, because renaming the repository later would change the first and not the second.
+
+### Step 4 — Verify
+
+The Plugins screen should now show `mb-al-ai-toolkit` as installed, with enable/disable, update, and uninstall controls.
+
+Then confirm the components loaded:
+
+- **Agent** — start a session and type `/agent`. `al-fast` should appear in the picker. It is also selectable from the **Default agent** picker.
+- **Skills** — open **Settings → Skills**, or type `/skills` in a session. All seven `al-*` skills should be listed. `/skills reload` re-reads them without restarting the app.
+
+## Installation — Copilot CLI
+
+The same marketplace works from the CLI, which *is* command-driven:
 
 ```bash
+# Step 1 — register the marketplace
+copilot plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app
 copilot plugin marketplace list
 copilot plugin marketplace browse mb-al-ai-toolkit-gh-copilot-app
-```
 
-> You add the **repository** (`mbaic/mb-al-ai-toolkit-gh-copilot-app`), but you install against the **marketplace name** declared in `marketplace.json`. Here those two strings are identical, so the distinction is easy to miss — it still matters, because renaming the repository later would change the first and not the second.
-
-### Step 2 — Install the plugin
-
-```bash
+# Step 2 — install the plugin
 copilot plugin install mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app
-```
 
-Or in-session:
-
-```text
-/plugin install mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app
-```
-
-Registrations and installs are shared across Copilot clients signed in to the same account, so doing this once makes the plugin available in both the app and the CLI.
-
-### Step 3 — Verify
-
-```bash
+# Step 3 — verify
 copilot plugin list
 ```
 
-Then, inside a session:
+In-session, the CLI also accepts `/plugin marketplace add ...` and `/plugin install ...`, plus `/agent` and `/skills list`.
 
-```text
-/agent
-/skills list
-```
+### Enabling declaratively per repository (CLI and Copilot cloud agent)
 
-`al-fast` should appear in the agent picker, and the seven `al-*` skills in the skills list. `/skills info al-review-code` names the plugin it came from.
-
-### Alternative — register and enable declaratively per repository
-
-Instead of having every developer run Step 1 and Step 2 by hand, commit the marketplace registration and the plugin enablement into the AL repository the toolkit is used against, in `.github/copilot/settings.json`:
+Instead of each developer adding the marketplace by hand, commit the registration and enablement into the AL repository the toolkit is used against, in `.github/copilot/settings.json`:
 
 ```json
 {
@@ -144,7 +152,11 @@ Instead of having every developer run Step 1 and Step 2 by hand, commit the mark
 }
 ```
 
-Note the nesting: the outer key is the marketplace name, and the discriminator inside the source object is `source`, not `type`. Repository-level settings are read by both the Copilot CLI and the Copilot Cloud Agent, so anyone who opens the repository picks the plugin up. One caveat — `autoUpdate: true` is accepted on a repository-level entry but ignored; that opt-in is only honored in a user's own settings.
+Note the nesting: the outer key is the marketplace name, and the discriminator inside the source object is `source`, not `type`.
+
+These repository-level keys are documented as read by the **Copilot CLI and the Copilot cloud agent**. The Copilot app's own install path is the GUI flow above — treat this file as a convenience for CLI and cloud-agent users, not as a substitute for Steps 1–3. One caveat: `autoUpdate: true` is accepted on a repository-level entry but ignored; that opt-in is only honored in a user's own settings.
+
+Skills and MCP servers already configured for your repositories or for the Copilot CLI are picked up by the app automatically. Plugin installation is the part that is not shared — do that in the app.
 
 ## Usage
 
@@ -167,7 +179,11 @@ how do I sort a generic RecordRef by Document Date descending?
 
 ## Updating
 
-Plugin components are **cached at install time**. Copilot does not poll this repository, so a push alone changes nothing on an installed client. After publishing a change here:
+Plugin components are **cached at install time**. Copilot does not poll this repository, so a push alone changes nothing on an installed client.
+
+**In the app:** open **Settings → Plugins** and use the **update** control on `mb-al-ai-toolkit`. The same screen carries enable/disable and uninstall.
+
+**In the CLI:**
 
 ```bash
 copilot plugin marketplace update mb-al-ai-toolkit-gh-copilot-app   # re-fetch the catalog
@@ -180,13 +196,15 @@ Bump `version` in **both** `plugins/mb-al-ai-toolkit/plugin.json` and the matchi
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Marketplace not found on install | Step 1 was skipped, or the registration did not persist | `copilot plugin marketplace list` — if it is absent, re-run `marketplace add`; install against `mb-al-ai-toolkit-gh-copilot-app` |
+| `/plugin install` does nothing in the app | The app has no `/plugin` command family — plugin management is GUI-only | Use **Settings → Plugins** instead; `/plugin` exists only in the CLI |
+| Marketplace missing from the Plugins screen | The **Add plugin marketplace?** dialog was dismissed instead of allowed | Re-run **Add marketplace** with source `mbaic/mb-al-ai-toolkit-gh-copilot-app` and choose **Allow** |
 | Plugin missing after install | `source` path in `marketplace.json` does not match the real folder | Confirm it is repo-root-relative and matches `plugins/mb-al-ai-toolkit` exactly |
 | Agent absent from `/agent` | Name collision — a project or personal agent of the same name shadows the plugin's | Agents resolve first-found-wins; rename the local one, or the agent in `agents/*.agent.md` frontmatter |
-| Skill never triggers | `description` too vague, or shadowed by a same-named local skill | Skills dedupe by `name`; make the `description` state plainly when to use it |
-| Edits here have no effect | Install-time cache | `copilot plugin marketplace update`, then `copilot plugin update` |
-| Organization blocks the marketplace | `strictKnownMarketplaces` in enterprise `managed-settings.json` restricts installs to listed marketplaces | Ask an administrator to add this repository; an empty list blocks everything |
-| `marketplace remove` fails | Plugins from it are still installed | Uninstall them first, or pass `--force` |
+| Skill never triggers | `description` too vague, or shadowed by a same-named local skill | Skills dedupe by `name`; make the `description` state plainly when to use it. `/skills reload` re-reads them |
+| Edits here have no effect | Install-time cache | App: **Settings → Plugins** → update. CLI: `copilot plugin marketplace update`, then `copilot plugin update` |
+| Adding the marketplace fails on a private repo | The signed-in account lacks read access to the repository | Grant repository access; private-repo marketplaces work but are gated on the user's own permissions |
+| Organization blocks the marketplace | `strictKnownMarketplaces` in enterprise `managed-settings.json` restricts installs to listed marketplaces — this applies to the app as well as the CLI | Ask an administrator to add this repository; an empty list blocks everything |
+| `marketplace remove` fails (CLI) | Plugins from it are still installed | Uninstall them first, or pass `--force` |
 
 ## Authoring notes
 
