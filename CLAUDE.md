@@ -2,6 +2,56 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Check the repository name first, every session
+
+**Recorded name: `mbaic/mb-al-ai-toolkit-gh-copilot-app-wip`.**
+
+This repository is expected to be renamed to a production name once it is tested and ready. The name is embedded in install commands, manifest URLs, and prose, so a stale copy is a real defect. At the start of every session, before doing anything else:
+
+```bash
+git remote get-url origin
+grep -rn 'mb-al-ai-toolkit-gh-copilot-app-wip' --include='*.md' --include='*.json' . | grep -v '^\./\.git'
+```
+
+If the remote no longer says `mb-al-ai-toolkit-gh-copilot-app-wip`, the rename has happened — carry out the protocol below before any other work, and update the recorded name in this file.
+
+### Rename protocol
+
+Substitute the new name everywhere. The grep above is the source of truth for the count; the breakdown below is a map of *what* each occurrence is, so you can sanity-check that nothing was missed. As of the last audit: **18 occurrences across 5 files**.
+
+| File | Occurrences | What they are |
+|---|---|---|
+| `CLAUDE.md` | 8 | the recorded name, this protocol's own examples, the declarative-install snippet |
+| `README.md` | 5 | editions table, layout tree root, two `marketplace add` commands, `extraKnownMarketplaces` repo |
+| `.github/plugin/marketplace.json` | 2 | `homepage`, `repository` |
+| `plugins/mb-al-ai-toolkit/plugin.json` | 2 | `homepage`, `repository` |
+| `CHANGELOG.md` | 1 | the `[0.1.0]` release-tag link |
+
+```bash
+grep -rl 'mb-al-ai-toolkit-gh-copilot-app-wip' --include='*.md' --include='*.json' . \
+  | xargs sed -i 's|mb-al-ai-toolkit-gh-copilot-app-wip|NEW-REPO-NAME|g'
+```
+
+Then re-run the verification block further down, and confirm the count is zero:
+
+```bash
+grep -rn 'mb-al-ai-toolkit-gh-copilot-app-wip' . | grep -v '^\./\.git' || echo "no stale references"
+```
+
+### What does NOT change on rename
+
+The **marketplace name** (`mb-al-ai-toolkit-gh-copilot-app`) and the **plugin name** (`mb-al-ai-toolkit`) live in the manifests, not in the repo name. So the install identifier `mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` is stable across a rename, and anyone who already installed the plugin keeps working. Only the one-time `marketplace add mbaic/<repo>` registration points at the repository.
+
+Do not "fix" the marketplace name to match a new repo name. Changing it breaks the install identifier for every existing consumer, which a rename otherwise does not.
+
+### One thing a blind find-and-replace gets wrong
+
+If the production name turns out to be exactly `mb-al-ai-toolkit-gh-copilot-app`, then the repo name and the marketplace name become **identical**. At that point the warning under "What this repository is" — that the two deliberately differ and conflating them is the common failure — is no longer true and must be reworded, not just string-swapped. Read that paragraph after any rename instead of trusting `sed`.
+
+### GitHub's redirect
+
+GitHub keeps a redirect from the old repository path after a rename, so `marketplace add mbaic/<old-name>` may keep appearing to work. Do not rely on it: it masks stale references during testing, and it does not survive the old name being claimed by another repository. Treat a passing test that still uses the old name as untested.
+
 ## What this repository is
 
 A **self-hosted GitHub Copilot plugin marketplace**. It ships no application code — every file is either a JSON manifest or Markdown that Copilot loads at runtime. There is no build, no test suite, and no linter. "Correctness" here means: the manifests parse, they agree with each other, and every command and identifier in the docs actually exists.
