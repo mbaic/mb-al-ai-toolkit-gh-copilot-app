@@ -124,6 +124,28 @@ Then, inside a session:
 
 `al-fast` should appear in the agent picker, and the seven `al-*` skills in the skills list. `/skills info al-review-code` names the plugin it came from.
 
+### Alternative — register and enable declaratively per repository
+
+Instead of having every developer run Step 1 and Step 2 by hand, commit the marketplace registration and the plugin enablement into the AL repository the toolkit is used against, in `.github/copilot/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "mb-al-ai-toolkit-gh-copilot-app": {
+      "source": {
+        "source": "github",
+        "repo": "mbaic/mb-al-ai-toolkit-gh-copilot-app-wip"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app": true
+  }
+}
+```
+
+Note the nesting: the outer key is the marketplace name, and the discriminator inside the source object is `source`, not `type`. Repository-level settings are read by both the Copilot CLI and the Copilot Cloud Agent, so anyone who opens the repository picks the plugin up. One caveat — `autoUpdate: true` is accepted on a repository-level entry but ignored; that opt-in is only honored in a user's own settings.
+
 ## Usage
 
 **Agent** — select `al-fast` for fast, autonomous AL edits:
