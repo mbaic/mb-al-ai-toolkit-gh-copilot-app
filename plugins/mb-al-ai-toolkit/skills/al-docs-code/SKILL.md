@@ -70,6 +70,6 @@ The user will provide one of:
 
 If a file path is provided, read the file with `view` and extract the relevant procedures.
 
-If a folder path is provided, list `.al` files with `search` or `bash` (`ls`), read each, and document every meaningful procedure or object found.
+If a folder path is provided, list `.al` files with `glob` or `bash` (`ls`), read each, and document every meaningful procedure or object found.
 
 Focus on the provided text, code, file path, or folder that follows the user's instruction.

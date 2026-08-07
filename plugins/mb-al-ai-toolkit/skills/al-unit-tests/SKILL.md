@@ -63,6 +63,6 @@ The user will provide one of:
 
 If a file path is provided, read it with `view` and extract procedures.
 
-If a folder path is provided, list `.al` files (`search` or `bash`), read each, and generate tests for every testable procedure found.
+If a folder path is provided, list `.al` files (`glob` or `bash`), read each, and generate tests for every testable procedure found.
 
 Focus on the provided text, code, file path, or folder that follows the user's instruction.

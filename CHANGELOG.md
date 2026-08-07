@@ -24,4 +24,12 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
 - `al-fast` build-cycle guidance made client-neutral — it no longer assumes a Copilot CLI terminal
   session, since the same agent now runs in the Copilot app.
 
+### Fixed
+
+- Replaced the non-existent `search` tool with `grep` and `glob` in the `al-fast` agent's `tools`
+  frontmatter and body, and in the four skills that referenced it (`al-docs-code`, `al-review-code`,
+  `al-refactor-code`, `al-unit-tests`). `search` is not part of Copilot's built-in tool vocabulary;
+  unrecognized tool names are silently ignored, so the agent was shipping without a code-search
+  capability and the skills were pointing at a tool that would never resolve.
+
 [0.1.0]: https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app-wip/releases/tag/v0.1.0

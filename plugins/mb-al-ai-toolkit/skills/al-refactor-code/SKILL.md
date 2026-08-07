@@ -50,6 +50,6 @@ The user will provide one of:
 
 If a file path is provided, read it with `view`, review every procedure, and propose refactored AL code via `edit` only when the user has explicitly asked you to apply the changes; otherwise present the refactored block in the response.
 
-If a folder path is provided, list `.al` files (`search` or `bash`), read each, and review/refactor every procedure that can be improved.
+If a folder path is provided, list `.al` files (`glob` or `bash`), read each, and review/refactor every procedure that can be improved.
 
 Focus on the provided text, code, file path, or folder that follows the user's instruction.
