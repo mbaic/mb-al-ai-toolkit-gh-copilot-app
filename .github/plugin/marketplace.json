@@ -1,0 +1,38 @@
+{
+  "name": "mb-al-ai-toolkit-gh-copilot-app",
+  "owner": {
+    "name": "Milos Baic",
+    "email": "milos.baic@outlook.com"
+  },
+  "metadata": {
+    "description": "AL development plugins for Microsoft Dynamics 365 Business Central, distributed to the GitHub Copilot app.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "mb-al-ai-toolkit",
+      "source": "./plugins/mb-al-ai-toolkit",
+      "description": "Custom agent and skills for AL development in Microsoft Dynamics 365 Business Central Per-Tenant Extensions.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Milos Baic",
+        "email": "milos.baic@outlook.com",
+        "url": "https://github.com/mbaic"
+      },
+      "homepage": "https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app-wip",
+      "repository": "https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app-wip",
+      "license": "MIT",
+      "keywords": [
+        "business-central",
+        "al",
+        "dynamics-365",
+        "pte",
+        "code-review",
+        "unit-tests",
+        "documentation",
+        "ai-toolkit"
+      ],
+      "tags": ["al", "business-central", "code-review"]
+    }
+  ]
+}
