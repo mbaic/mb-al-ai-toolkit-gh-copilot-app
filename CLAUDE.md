@@ -4,39 +4,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Check the repository name first, every session
 
-**Recorded name: `mbaic/mb-al-ai-toolkit-gh-copilot-app-wip`.**
+**Recorded name: `mbaic/mb-al-ai-toolkit-gh-copilot-app`.** This is the production name; the repository was renamed off an earlier `-wip` suffix on 2026-08-07.
 
-This repository is expected to be renamed to a production name once it is tested and ready. The name is embedded in install commands, manifest URLs, and prose, so a stale copy is a real defect. At the start of every session, before doing anything else:
+The name is embedded in install commands, manifest URLs, and prose, so a stale copy is a real defect. At the start of every session, before doing anything else:
 
 ```bash
 git remote get-url origin
-grep -rn 'mb-al-ai-toolkit-gh-copilot-app-wip' --include='*.md' --include='*.json' . | grep -v '^\./\.git'
+grep -rn 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' . | grep -v '^\./\.git'
 ```
 
-If the remote no longer says `mb-al-ai-toolkit-gh-copilot-app-wip`, the rename has happened — carry out the protocol below before any other work, and update the recorded name in this file.
+If the remote no longer says `mb-al-ai-toolkit-gh-copilot-app`, the rename has happened — carry out the protocol below before any other work, and update the recorded name in this file.
 
 ### Rename protocol
 
-Substitute the new name everywhere. The grep above is the source of truth for the count; the breakdown below is a map of *what* each occurrence is, so you can sanity-check that nothing was missed. As of the last audit: **18 occurrences across 5 files**.
+**Do not blanket-substitute the bare string.** Since the repo name and the marketplace name are now the same text, a naive `sed 's|mb-al-ai-toolkit-gh-copilot-app|NEW|g'` rewrites both and silently breaks the install identifier for every existing consumer. As of the last audit the string appears **40 times**, split as:
 
-| File | Occurrences | What they are |
+- **11 repo references — safe to rename.** Always qualified by the owner: `mbaic/<name>` or `github.com/mbaic/<name>`.
+- **29 marketplace-name references — must not change.** Always bare: the `name` field in `marketplace.json`, `@mb-al-ai-toolkit-gh-copilot-app` install identifiers, `extraKnownMarketplaces` keys, `marketplace browse`/`update` arguments.
+
+So anchor the substitution on the owner prefix:
+
+```bash
+grep -rl 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' . \
+  | xargs sed -i 's|mbaic/mb-al-ai-toolkit-gh-copilot-app|mbaic/NEW-REPO-NAME|g'
+```
+
+Then confirm the split is still correct — repo references gone, marketplace name untouched:
+
+```bash
+grep -rn 'mbaic/mb-al-ai-toolkit-gh-copilot-app' . | grep -v '^\./\.git' || echo "no stale repo references"
+python3 -c "import json; assert json.load(open('.github/plugin/marketplace.json'))['name'] == 'mb-al-ai-toolkit-gh-copilot-app'; print('marketplace name intact')"
+```
+
+Occurrences by file, as a sanity map:
+
+| File | Repo refs | What they are |
 |---|---|---|
-| `CLAUDE.md` | 8 | the recorded name, this protocol's own examples, the declarative-install snippet |
-| `README.md` | 5 | editions table, layout tree root, two `marketplace add` commands, `extraKnownMarketplaces` repo |
+| `README.md` | 3 | two `marketplace add` commands, `extraKnownMarketplaces` repo |
 | `.github/plugin/marketplace.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/plugin.json` | 2 | `homepage`, `repository` |
+| `CLAUDE.md` | 2 | the recorded name above, the declarative-install snippet |
 | `CHANGELOG.md` | 1 | the `[0.1.0]` release-tag link |
 
-```bash
-grep -rl 'mb-al-ai-toolkit-gh-copilot-app-wip' --include='*.md' --include='*.json' . \
-  | xargs sed -i 's|mb-al-ai-toolkit-gh-copilot-app-wip|NEW-REPO-NAME|g'
-```
-
-Then re-run the verification block further down, and confirm the count is zero:
-
-```bash
-grep -rn 'mb-al-ai-toolkit-gh-copilot-app-wip' . | grep -v '^\./\.git' || echo "no stale references"
-```
+Also update the layout tree root in `README.md` and the editions table, which name the repo without the owner prefix and so are missed by the anchored `sed`.
 
 ### What does NOT change on rename
 
@@ -44,9 +54,16 @@ The **marketplace name** (`mb-al-ai-toolkit-gh-copilot-app`) and the **plugin na
 
 Do not "fix" the marketplace name to match a new repo name. Changing it breaks the install identifier for every existing consumer, which a rename otherwise does not.
 
-### One thing a blind find-and-replace gets wrong
+### The repo name and the marketplace name are now identical
 
-If the production name turns out to be exactly `mb-al-ai-toolkit-gh-copilot-app`, then the repo name and the marketplace name become **identical**. At that point the warning under "What this repository is" — that the two deliberately differ and conflating them is the common failure — is no longer true and must be reworded, not just string-swapped. Read that paragraph after any rename instead of trusting `sed`.
+Since the rename, the repository is `mb-al-ai-toolkit-gh-copilot-app` and the marketplace declared in `marketplace.json` is *also* `mb-al-ai-toolkit-gh-copilot-app`. They are two different identifiers that currently happen to hold the same string.
+
+This matters in two directions:
+
+- **A future rename must not assume they move together.** Renaming the repository again changes only the `marketplace add mbaic/<repo>` argument. The marketplace name stays put unless you deliberately change it — and you should not, because it is half of the install identifier every existing consumer uses.
+- **A blind `sed` for the shared string will hit both.** After any future rename, re-read `marketplace.json` and confirm its `name` field still says `mb-al-ai-toolkit-gh-copilot-app`. If a substitution changed it, every installed client's `mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` identifier breaks.
+
+Before the rename these were different strings and the docs warned that conflating them was the common install failure. That warning no longer applies as written — do not reintroduce it.
 
 ### GitHub's redirect
 
@@ -61,7 +78,7 @@ Two layers, and both must stay in sync:
 - `.github/plugin/marketplace.json` — the marketplace manifest. Declares marketplace `name` (`mb-al-ai-toolkit-gh-copilot-app`) and a `plugins[]` array. Each entry's `source` is a path **relative to the repository root**, which is why plugins live under `plugins/<plugin-name>/`.
 - `plugins/mb-al-ai-toolkit/plugin.json` — the plugin manifest, plus `agents/` and `skills/` beside it.
 
-The marketplace **name** deliberately differs from the repository name. Users run `marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app-wip` (repo) but `plugin install mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` (manifest name). Conflating the two is the most common install failure.
+The marketplace **name** comes from `marketplace.json`, not from the repository name — they are independent identifiers that currently hold the same string (`mb-al-ai-toolkit-gh-copilot-app`). Users run `marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app` (the repo) and then `plugin install mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` (the manifest name). Keep them in step deliberately, not by accident: see the rename protocol above before changing either.
 
 ## Relationship to sibling repositories
 
@@ -137,7 +154,7 @@ For `.github/copilot/settings.json` in a *consuming* repository, the discriminat
 {
   "extraKnownMarketplaces": {
     "mb-al-ai-toolkit-gh-copilot-app": {
-      "source": { "source": "github", "repo": "mbaic/mb-al-ai-toolkit-gh-copilot-app-wip" }
+      "source": { "source": "github", "repo": "mbaic/mb-al-ai-toolkit-gh-copilot-app" }
     }
   },
   "enabledPlugins": { "mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app": true }

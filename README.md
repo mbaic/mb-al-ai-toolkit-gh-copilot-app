@@ -8,7 +8,7 @@ This is the **Copilot app** edition. Two sibling editions package the same AL to
 
 | Edition | Repository | Distribution |
 |---|---|---|
-| Copilot app (this repo) | `mb-al-ai-toolkit-gh-copilot-app-wip` | Custom marketplace |
+| Copilot app (this repo) | `mb-al-ai-toolkit-gh-copilot-app` | Custom marketplace |
 | Copilot CLI | [`mb-al-ai-toolkit-cli`](https://github.com/mbaic/mb-al-ai-toolkit-cli) | Manual install from a clone |
 | Claude Code | [`mb-al-ai-toolkit-cc`](https://github.com/mbaic/mb-al-ai-toolkit-cc) | Manual install from a clone |
 
@@ -36,7 +36,7 @@ Skills are selected by **description match** — phrase your request naturally a
 ## Repository layout
 
 ```
-mb-al-ai-toolkit-gh-copilot-app-wip/
+mb-al-ai-toolkit-gh-copilot-app/
 ├── .github/
 │   └── plugin/
 │       └── marketplace.json        # marketplace manifest — what this repo publishes
@@ -77,13 +77,13 @@ A plugin served from a custom marketplace is a two-step install: **register the 
 ### Step 1 — Register the marketplace
 
 ```bash
-copilot plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app-wip
+copilot plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app
 ```
 
 Or from inside a Copilot session:
 
 ```text
-/plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app-wip
+/plugin marketplace add mbaic/mb-al-ai-toolkit-gh-copilot-app
 ```
 
 Confirm it registered under the name declared in the manifest:
@@ -93,7 +93,7 @@ copilot plugin marketplace list
 copilot plugin marketplace browse mb-al-ai-toolkit-gh-copilot-app
 ```
 
-> The marketplace **name** (`mb-al-ai-toolkit-gh-copilot-app`) comes from `marketplace.json` and is deliberately not identical to the repository name. You add the repository, but you install against the name.
+> You add the **repository** (`mbaic/mb-al-ai-toolkit-gh-copilot-app`), but you install against the **marketplace name** declared in `marketplace.json`. Here those two strings are identical, so the distinction is easy to miss — it still matters, because renaming the repository later would change the first and not the second.
 
 ### Step 2 — Install the plugin
 
@@ -134,7 +134,7 @@ Instead of having every developer run Step 1 and Step 2 by hand, commit the mark
     "mb-al-ai-toolkit-gh-copilot-app": {
       "source": {
         "source": "github",
-        "repo": "mbaic/mb-al-ai-toolkit-gh-copilot-app-wip"
+        "repo": "mbaic/mb-al-ai-toolkit-gh-copilot-app"
       }
     }
   },
@@ -180,7 +180,7 @@ Bump `version` in **both** `plugins/mb-al-ai-toolkit/plugin.json` and the matchi
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Marketplace not found on install | Not registered, or installed against the repo name instead of the manifest name | `copilot plugin marketplace list`, then install against `mb-al-ai-toolkit-gh-copilot-app` |
+| Marketplace not found on install | Step 1 was skipped, or the registration did not persist | `copilot plugin marketplace list` — if it is absent, re-run `marketplace add`; install against `mb-al-ai-toolkit-gh-copilot-app` |
 | Plugin missing after install | `source` path in `marketplace.json` does not match the real folder | Confirm it is repo-root-relative and matches `plugins/mb-al-ai-toolkit` exactly |
 | Agent absent from `/agent` | Name collision — a project or personal agent of the same name shadows the plugin's | Agents resolve first-found-wins; rename the local one, or the agent in `agents/*.agent.md` frontmatter |
 | Skill never triggers | `description` too vague, or shadowed by a same-named local skill | Skills dedupe by `name`; make the `description` state plainly when to use it |

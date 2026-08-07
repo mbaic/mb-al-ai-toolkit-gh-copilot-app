@@ -32,4 +32,4 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
   unrecognized tool names are silently ignored, so the agent was shipping without a code-search
   capability and the skills were pointing at a tool that would never resolve.
 
-[0.1.0]: https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app-wip/releases/tag/v0.1.0
+[0.1.0]: https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app/releases/tag/v0.1.0
