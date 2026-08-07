@@ -10,40 +10,54 @@ The name is embedded in install commands, manifest URLs, and prose, so a stale c
 
 ```bash
 git remote get-url origin
-grep -rn 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' . | grep -v '^\./\.git'
+grep -rn 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git .
 ```
+
+> Use `--exclude-dir=.git`, never `grep -v '^\./\.git'`. `.git` is a literal prefix of `.github`, so the filter form also silently drops `.github/plugin/marketplace.json` — the one file where a bad substitution does the most damage.
 
 If the remote no longer says `mb-al-ai-toolkit-gh-copilot-app`, the rename has happened — carry out the protocol below before any other work, and update the recorded name in this file.
 
 ### Rename protocol
 
-**Do not blanket-substitute the bare string.** Since the repo name and the marketplace name are now the same text, a naive `sed 's|mb-al-ai-toolkit-gh-copilot-app|NEW|g'` rewrites both and silently breaks the install identifier for every existing consumer. As of the last audit the string appears **40 times**, split as:
+**Do not blanket-substitute the bare string.** Since the repo name and the marketplace name are now the same text, a naive `sed 's|mb-al-ai-toolkit-gh-copilot-app|NEW|g'` rewrites both and silently breaks the install identifier for every existing consumer.
 
-- **11 repo references — safe to rename.** Always qualified by the owner: `mbaic/<name>` or `github.com/mbaic/<name>`.
-- **29 marketplace-name references — must not change.** Always bare: the `name` field in `marketplace.json`, `@mb-al-ai-toolkit-gh-copilot-app` install identifiers, `extraKnownMarketplaces` keys, `marketplace browse`/`update` arguments.
+Recompute before trusting any number here — these drift with every edit:
+
+```bash
+# repo references (safe to rename) — always owner-qualified
+grep -rho 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git . | wc -l
+# every occurrence of the string, repo and marketplace alike
+grep -rho 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git . | wc -l
+```
+
+At the last audit: **50 occurrences total — 19 owner-qualified repo references, 31 bare marketplace-name references.**
+
+- **Repo references — safe to rename.** Always qualified: `mbaic/<name>` or `github.com/mbaic/<name>`.
+- **Marketplace-name references — must not change.** Always bare: the `name` field in `marketplace.json`, `@mb-al-ai-toolkit-gh-copilot-app` install identifiers, `extraKnownMarketplaces` keys, `marketplace browse`/`update` arguments.
 
 So anchor the substitution on the owner prefix:
 
 ```bash
-grep -rl 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' . \
+grep -rl 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git . \
   | xargs sed -i 's|mbaic/mb-al-ai-toolkit-gh-copilot-app|mbaic/NEW-REPO-NAME|g'
 ```
 
 Then confirm the split is still correct — repo references gone, marketplace name untouched:
 
 ```bash
-grep -rn 'mbaic/mb-al-ai-toolkit-gh-copilot-app' . | grep -v '^\./\.git' || echo "no stale repo references"
+grep -rn 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --exclude-dir=.git . || echo "no stale repo references"
 python3 -c "import json; assert json.load(open('.github/plugin/marketplace.json'))['name'] == 'mb-al-ai-toolkit-gh-copilot-app'; print('marketplace name intact')"
 ```
 
-Occurrences by file, as a sanity map:
+Owner-qualified references by file, as a sanity map (19 total at last audit):
 
 | File | Repo refs | What they are |
 |---|---|---|
-| `README.md` | 3 | two `marketplace add` commands, `extraKnownMarketplaces` repo |
+| `CLAUDE.md` | 7 | the recorded name, this protocol's examples, the declarative snippet |
+| `README.md` | 6 | `marketplace add` commands, deep link, `extraKnownMarketplaces` repo, prose |
 | `.github/plugin/marketplace.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/plugin.json` | 2 | `homepage`, `repository` |
-| `CLAUDE.md` | 2 | the recorded name above, the declarative-install snippet |
+| `plugins/mb-al-ai-toolkit/README.md` | 1 | the app **Add marketplace** source |
 | `CHANGELOG.md` | 1 | the `[0.1.0]` release-tag link |
 
 Also update the layout tree root in `README.md` and the editions table, which name the repo without the owner prefix and so are missed by the anchored `sed`.

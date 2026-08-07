@@ -50,12 +50,13 @@ document the procedure CalculateBalance in app/src/Customer/CustomerCalc.Codeuni
 refactor app/src/Pricing
 ```
 
-Or load a skill explicitly when you want to force the match:
+Naming the topic directly is usually enough to force the match you want:
 
 ```text
-/skills load al-sortrecordref
-> how do I sort a generic RecordRef by Document Date descending?
+how do I sort a generic RecordRef by Document Date descending?
 ```
+
+In the **Copilot CLI**, you can also pin a skill explicitly with `/skills load al-sortrecordref`. The app has no `load` subcommand — use `/skills` to see what is available and `/skills reload` to re-read them.
 
 `al-sortrecordref` keeps its worked examples in a companion `REFERENCE.md` next to `SKILL.md`, which the skill draws on for detailed patterns.
 
