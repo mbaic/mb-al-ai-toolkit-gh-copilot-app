@@ -41,7 +41,8 @@ mb-al-ai-toolkit-gh-copilot-app/
 │   ├── plugin/
 │   │   └── marketplace.json        # marketplace manifest — what this repo publishes
 │   └── workflows/
-│       └── validate.yml            # CI: runs scripts/validate.py
+│       ├── validate.yml            # CI: runs scripts/validate.py
+│       └── release.yml             # manual: tags a version, publishes a Release
 ├── plugins/
 │   └── mb-al-ai-toolkit/
 │       ├── plugin.json             # plugin manifest
@@ -59,7 +60,8 @@ mb-al-ai-toolkit-gh-copilot-app/
 │               ├── SKILL.md
 │               └── REFERENCE.md
 ├── scripts/
-│   └── validate.py                 # manifest + frontmatter validator
+│   ├── validate.py                 # manifest + frontmatter validator
+│   └── release_notes.py            # extracts a CHANGELOG section
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE
@@ -222,6 +224,22 @@ python3 scripts/validate.py
 
 It runs automatically in CI on every push and pull request touching the manifests or the plugin.
 It needs no dependencies — plain Python 3.
+
+## Releasing
+
+Releases are cut by the **Release** workflow: **Actions → Release → Run workflow**, then enter the
+version (e.g. `0.2.0`). It refuses to tag anything inconsistent — the manifests must validate, both
+must declare that version, `CHANGELOG.md` must have a matching section, and the tag must not already
+exist — then creates the annotated tag and a GitHub Release using that changelog section as the notes.
+
+So the release checklist is: bump `plugin.json` and the `marketplace.json` entry, write the
+`CHANGELOG.md` section, merge to `main`, run the workflow.
+
+To preview the notes a release would carry:
+
+```bash
+python3 scripts/release_notes.py 0.1.0
+```
 
 ## Authoring notes
 

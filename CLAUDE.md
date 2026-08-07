@@ -118,6 +118,16 @@ The same script runs in CI via `.github/workflows/validate.yml` on any push or P
 
 Version bumps must land in **three** places together: `plugin.json`, the matching `marketplace.json` entry, and `CHANGELOG.md`. The validator enforces the first two; the changelog is on you.
 
+## Releasing
+
+Releases are cut by the **Release** workflow, not by hand: Actions → Release → Run workflow → enter the version (e.g. `0.2.0`). It validates the manifests, checks both of them declare that version, checks `CHANGELOG.md` has a section for it, refuses to overwrite an existing tag, then creates the annotated tag and a GitHub Release using that changelog section as the notes. There is a `draft` option if you want to review before publishing.
+
+So the release checklist is just: bump `plugin.json` and the `marketplace.json` entry, write the `CHANGELOG.md` section, merge, then run the workflow. Every guard is there so a tag means "this state was coherent" rather than "someone ran the job".
+
+**Do not try to `git push` a tag from a Claude Code sandbox.** The session's git proxy accepts `refs/heads/*` and returns a bare `403` for tag refs — no GitHub headers on the response, while branch pushes to the same URL succeed. It is not a repository setting and not something to debug against GitHub. That restriction is exactly why the release workflow exists: Actions runs on GitHub's side, outside the proxy.
+
+`scripts/release_notes.py <version>` extracts a changelog section and is runnable locally to preview what a release would say.
+
 ## The tool-vocabulary trap
 
 Agent frontmatter `tools:` and any tool named in an agent or skill **body** must come from Copilot's built-in vocabulary. Unrecognized names are **silently ignored** — no error, the capability just vanishes. This already bit this codebase once: the upstream CLI edition used `search`, which is not a real tool, leaving the agent unable to search. It was replaced with `grep` (content search) and `glob` (file-path patterns).

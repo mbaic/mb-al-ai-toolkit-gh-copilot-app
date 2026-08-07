@@ -29,6 +29,12 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
   tool names in agent frontmatter and in agent/skill bodies, and duplicate component names.
 - Added `.github/workflows/validate.yml`, running that validator on every push and pull
   request that touches the manifests, the plugin, or the script.
+- Added `.github/workflows/release.yml`, a manually-triggered release workflow that tags a
+  version and publishes a GitHub Release from the matching `CHANGELOG.md` section. It refuses
+  to tag unless the manifests validate, both declare the version being released, the changelog
+  has a section for it, and the tag does not already exist.
+- Added `scripts/release_notes.py`, which extracts a version's changelog section — used by the
+  release workflow and runnable locally to preview release notes.
 - Repository renamed to `mb-al-ai-toolkit-gh-copilot-app`, dropping the earlier `-wip` suffix.
   The marketplace name was already `mb-al-ai-toolkit-gh-copilot-app` and is unchanged, so the
   `mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` install identifier is unaffected.
