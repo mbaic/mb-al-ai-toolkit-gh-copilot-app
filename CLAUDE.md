@@ -30,7 +30,7 @@ grep -rho 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.
 grep -rho 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git . | wc -l
 ```
 
-At the last audit: **49 occurrences total — 18 owner-qualified repo references, 31 bare marketplace-name references.**
+At the last audit: **50 occurrences total — 19 owner-qualified repo references, 31 bare marketplace-name references.**
 
 - **Repo references — safe to rename.** Always qualified: `mbaic/<name>` or `github.com/mbaic/<name>`.
 - **Marketplace-name references — must not change.** Always bare: the `name` field in `marketplace.json`, `@mb-al-ai-toolkit-gh-copilot-app` install identifiers, `extraKnownMarketplaces` keys, `marketplace browse`/`update` arguments.
@@ -49,7 +49,7 @@ grep -rn 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --exclude-dir=.git . || echo "n
 python3 -c "import json; assert json.load(open('.github/plugin/marketplace.json'))['name'] == 'mb-al-ai-toolkit-gh-copilot-app'; print('marketplace name intact')"
 ```
 
-Owner-qualified references by file, as a sanity map (18 total at last audit):
+Owner-qualified references by file, as a sanity map (19 total at last audit):
 
 | File | Repo refs | What they are |
 |---|---|---|
@@ -58,6 +58,9 @@ Owner-qualified references by file, as a sanity map (18 total at last audit):
 | `.github/plugin/marketplace.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/plugin.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/README.md` | 1 | the app **Add marketplace** source |
+| `CHANGELOG.md` | 1 | the `[0.1.0]` release-tag link |
+
+A release tag link in `CHANGELOG.md` points at `releases/tag/v<version>`. Keep tags and changelog entries in step — a link to a tag that was never pushed is a 404.
 
 Also update the layout tree root in `README.md` and the editions table, which name the repo without the owner prefix and so are missed by the anchored `sed`.
 

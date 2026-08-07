@@ -3,7 +3,7 @@
 All notable changes to this marketplace and the plugins it publishes are recorded here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.0 — 2026-08-07
+## [0.1.0] — 2026-08-07
 
 Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing one plugin.
 
@@ -49,3 +49,10 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
 - Scoped the `.github/copilot/settings.json` declarative section to the Copilot CLI and cloud
   agent, which are the clients it is documented for. It is no longer presented as an app
   install path.
+
+### Verified
+
+- Installed end to end in the GitHub Copilot app by following the README, confirming the
+  marketplace registers and the plugin installs through the documented GUI flow.
+
+[0.1.0]: https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app/releases/tag/v0.1.0
