@@ -3,7 +3,7 @@
 All notable changes to this marketplace and the plugins it publishes are recorded here.
 This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — 2026-08-07
+## 0.1.0 — 2026-08-07
 
 Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing one plugin.
 
@@ -24,6 +24,11 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
 - `al-fast` build-cycle guidance made client-neutral — it no longer assumes a Copilot CLI terminal
   session, since the same agent now runs in the Copilot app.
 
+- Added `scripts/validate.py`, a dependency-free validator covering manifest parsing,
+  cross-manifest name/version agreement, `source` resolution, frontmatter limits, real
+  tool names in agent frontmatter and in agent/skill bodies, and duplicate component names.
+- Added `.github/workflows/validate.yml`, running that validator on every push and pull
+  request that touches the manifests, the plugin, or the script.
 - Repository renamed to `mb-al-ai-toolkit-gh-copilot-app`, dropping the earlier `-wip` suffix.
   The marketplace name was already `mb-al-ai-toolkit-gh-copilot-app` and is unchanged, so the
   `mb-al-ai-toolkit@mb-al-ai-toolkit-gh-copilot-app` install identifier is unaffected.
@@ -44,5 +49,3 @@ Initial release of the `mb-al-ai-toolkit-gh-copilot-app` marketplace, publishing
 - Scoped the `.github/copilot/settings.json` declarative section to the Copilot CLI and cloud
   agent, which are the clients it is documented for. It is no longer presented as an app
   install path.
-
-[0.1.0]: https://github.com/mbaic/mb-al-ai-toolkit-gh-copilot-app/releases/tag/v0.1.0

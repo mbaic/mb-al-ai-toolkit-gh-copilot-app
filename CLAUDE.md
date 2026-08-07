@@ -30,7 +30,7 @@ grep -rho 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.
 grep -rho 'mb-al-ai-toolkit-gh-copilot-app' --include='*.md' --include='*.json' --exclude-dir=.git . | wc -l
 ```
 
-At the last audit: **50 occurrences total — 19 owner-qualified repo references, 31 bare marketplace-name references.**
+At the last audit: **49 occurrences total — 18 owner-qualified repo references, 31 bare marketplace-name references.**
 
 - **Repo references — safe to rename.** Always qualified: `mbaic/<name>` or `github.com/mbaic/<name>`.
 - **Marketplace-name references — must not change.** Always bare: the `name` field in `marketplace.json`, `@mb-al-ai-toolkit-gh-copilot-app` install identifiers, `extraKnownMarketplaces` keys, `marketplace browse`/`update` arguments.
@@ -49,7 +49,7 @@ grep -rn 'mbaic/mb-al-ai-toolkit-gh-copilot-app' --exclude-dir=.git . || echo "n
 python3 -c "import json; assert json.load(open('.github/plugin/marketplace.json'))['name'] == 'mb-al-ai-toolkit-gh-copilot-app'; print('marketplace name intact')"
 ```
 
-Owner-qualified references by file, as a sanity map (19 total at last audit):
+Owner-qualified references by file, as a sanity map (18 total at last audit):
 
 | File | Repo refs | What they are |
 |---|---|---|
@@ -58,7 +58,6 @@ Owner-qualified references by file, as a sanity map (19 total at last audit):
 | `.github/plugin/marketplace.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/plugin.json` | 2 | `homepage`, `repository` |
 | `plugins/mb-al-ai-toolkit/README.md` | 1 | the app **Add marketplace** source |
-| `CHANGELOG.md` | 1 | the `[0.1.0]` release-tag link |
 
 Also update the layout tree root in `README.md` and the editions table, which name the repo without the owner prefix and so are missed by the anchored `sed`.
 
@@ -102,35 +101,19 @@ The agent and skills in this repo were ported from the CLI edition and are other
 
 ## Verification
 
-There is no test command. Run these checks after touching any manifest or frontmatter:
+This is the test suite. Run it after touching any manifest, agent, or skill:
 
 ```bash
-# Manifests parse
-python3 -c "import json; json.load(open('.github/plugin/marketplace.json'))"
-python3 -c "import json; json.load(open('plugins/mb-al-ai-toolkit/plugin.json'))"
-
-# Cross-manifest consistency: name, version, description, and a resolvable source
-python3 -c "
-import json, os
-m = json.load(open('.github/plugin/marketplace.json'))
-p = json.load(open('plugins/mb-al-ai-toolkit/plugin.json'))
-e = m['plugins'][0]
-assert e['name'] == p['name'], 'name drift'
-assert e['version'] == p['version'], 'version drift'
-assert os.path.isdir(e['source']), 'source does not resolve'
-print('manifests consistent')
-"
-
-# Frontmatter limits: description <= 1024 chars, name <= 64 chars
-for f in plugins/mb-al-ai-toolkit/skills/*/SKILL.md plugins/mb-al-ai-toolkit/agents/*.agent.md; do
-  awk '/^description:/{sub(/^description: */,""); print length($0), FILENAME}' "$f"
-done
-
-# No invalid tool names anywhere
-grep -rn '`search`' plugins/ && echo "INVALID TOOL NAME PRESENT" || echo "clean"
+python3 scripts/validate.py
 ```
 
-Version bumps must land in **three** places together: `plugin.json`, the matching `marketplace.json` entry, and `CHANGELOG.md`.
+It exits non-zero on failure and checks: both manifests parse; the marketplace entry and `plugin.json` agree on name and version; `source` resolves to a real directory; every skill folder has a `SKILL.md`; `name` and `description` are present and within the 64/1024-character limits; agent `tools:` entries are all real Copilot tool names; agent and skill *bodies* do not reference non-existent tools; and no two agents or skills share a name.
+
+The same script runs in CI via `.github/workflows/validate.yml` on any push or PR touching `plugins/`, `.github/plugin/`, or the script itself. It is deliberately dependency-free — plain Python 3, no `pip install` — including its own small YAML frontmatter parser, so it runs anywhere without setup.
+
+**If you extend the validator, test that it actually fails.** A check that never fires is worse than no check. Copy the repo to a scratch directory, break the thing on purpose, and confirm a non-zero exit. The `tools:` check was written, appeared to pass, and was in fact silently dropping every block list until exactly that exercise caught it.
+
+Version bumps must land in **three** places together: `plugin.json`, the matching `marketplace.json` entry, and `CHANGELOG.md`. The validator enforces the first two; the changelog is on you.
 
 ## The tool-vocabulary trap
 

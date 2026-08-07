@@ -38,8 +38,10 @@ Skills are selected by **description match** — phrase your request naturally a
 ```
 mb-al-ai-toolkit-gh-copilot-app/
 ├── .github/
-│   └── plugin/
-│       └── marketplace.json        # marketplace manifest — what this repo publishes
+│   ├── plugin/
+│   │   └── marketplace.json        # marketplace manifest — what this repo publishes
+│   └── workflows/
+│       └── validate.yml            # CI: runs scripts/validate.py
 ├── plugins/
 │   └── mb-al-ai-toolkit/
 │       ├── plugin.json             # plugin manifest
@@ -56,6 +58,8 @@ mb-al-ai-toolkit-gh-copilot-app/
 │           └── al-sortrecordref/
 │               ├── SKILL.md
 │               └── REFERENCE.md
+├── scripts/
+│   └── validate.py                 # manifest + frontmatter validator
 ├── README.md
 ├── CHANGELOG.md
 └── LICENSE
@@ -205,6 +209,19 @@ Bump `version` in **both** `plugins/mb-al-ai-toolkit/plugin.json` and the matchi
 | Adding the marketplace fails on a private repo | The signed-in account lacks read access to the repository | Grant repository access; private-repo marketplaces work but are gated on the user's own permissions |
 | Organization blocks the marketplace | `strictKnownMarketplaces` in enterprise `managed-settings.json` restricts installs to listed marketplaces — this applies to the app as well as the CLI | Ask an administrator to add this repository; an empty list blocks everything |
 | `marketplace remove` fails (CLI) | Plugins from it are still installed | Uninstall them first, or pass `--force` |
+
+## Validation
+
+This repository ships no application code, so there is nothing to build. What can break is the
+manifests disagreeing with each other, or an agent or skill declaring something Copilot silently
+ignores. One script checks all of it:
+
+```bash
+python3 scripts/validate.py
+```
+
+It runs automatically in CI on every push and pull request touching the manifests or the plugin.
+It needs no dependencies — plain Python 3.
 
 ## Authoring notes
 
